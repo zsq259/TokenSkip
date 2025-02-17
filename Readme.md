@@ -25,7 +25,7 @@ TokenSkip constructs compressed CoT training data with various compression ratio
 
 We observe that as the model scale increases, there is less performance degradation at higher compression ratios, indicating that larger LLMs are better at identifying shortcuts between critical reasoning tokens, enabling more efficient CoT generation. Notably, Qwen2.5-14B-Instruct exhibits almost **NO** performance drop (less than 0.4%) with **40%** token trimming. Even at a compression ratio of 0.5, the model maintains strong reasoning capabilities, with only 2% performance degradation. 
 
-<img src="./assets/Qwen.png" alt="results" style="zoom:50%;" />
+<img src="./assets/results.png" alt="results"  />
 
 ## Todo
 
