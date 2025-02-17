@@ -1,5 +1,5 @@
 <div align="center">
-<h1><img src="assets/logo.png" height="32px"/>TokenSkip: Controllable Chain-of-Thought Compression in LLMs</h1> 
+<h1><img src="assets/logo.png" height="32px"/> TokenSkip: Controllable Chain-of-Thought Compression in LLMs</h1> 
 </div>
 
 <p align="center">
