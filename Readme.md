@@ -34,6 +34,14 @@ We observe that as the model scale increases, there is less performance degradat
 - [ ] Release code for compressed CoT data construction
 - [ ] Add instructions for SFT (LoRA) on LLaMA-Factory
 
+## Released Checkpoints
+
+| LoRA Adapter                         | Link                                                         |
+| ------------------------------------ | ------------------------------------------------------------ |
+| TokenSkip-Qwen2.5-3B-Instruct-GSM8K  | [huggingface](https://huggingface.co/hemingkx/TokenSkip-Qwen2.5-3B-Instruct-GSM8K) |
+| TokenSkip-Qwen2.5-7B-Instruct-GSM8K  | [huggingface](https://huggingface.co/hemingkx/TokenSkip-Qwen2.5-7B-Instruct-GSM8K) |
+| TokenSkip-Qwen2.5-14B-Instruct-GSM8K | [huggingface](https://huggingface.co/hemingkx/TokenSkip-Qwen2.5-14B-Instruct-GSM8K) |
+
 ## Installation
 
 ```
