@@ -12,7 +12,7 @@ EVAL_BATCH_SIZE=16
 TEMPERATURE=0.0
 SEED=42
 
-# TokenSKip Settings
+# TokenSkip Settings
 ADAPTER_PATH="/your_model_path/TokenSkip-Qwen2.5-7B-Instruct-GSM8K"
 COMPRESSION_RATIO=0.5
 
