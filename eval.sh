@@ -1,12 +1,12 @@
 BENCHMARK="gsm8k" # "gsm8k", "math"
-OUPTUT_DIR="outputs/Qwen2.5-7B-Instruct/${BENCHMARK}/" # Llama-3.1-8B-Instruct, Qwen2.5-7B-Instruct
-MODEL_PATH="/your_model_path/Qwen2.5-7B-Instruct" # /home/xiaheming/data/pretrained_models/Qwen/Qwen2.5-7B-Instruct
+OUPTUT_DIR="outputs/Qwen2.5-7B-Instruct/${BENCHMARK}/"
+MODEL_PATH="/your_model_path/Qwen2.5-7B-Instruct"
 MODEL_SIZE="7b"
 MODEL_TYPE="qwen" # "llama3", "qwen"
 TEST_CONF="configs/${BENCHMARK}_config.json"
 
 # Generation Settings
-MAX_NUM_EXAMPLES=100000000000000 # 100000000000000
+MAX_NUM_EXAMPLES=100000000000000
 MAX_NEW_TOKENS=512 # 512 for gsm8k, 1024 for math
 EVAL_BATCH_SIZE=16
 TEMPERATURE=0.0
