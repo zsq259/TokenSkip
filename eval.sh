@@ -1,6 +1,6 @@
 BENCHMARK="gsm8k" # "gsm8k", "math"
 OUPTUT_DIR="outputs/Qwen2.5-7B-Instruct/${BENCHMARK}/" # Llama-3.1-8B-Instruct, Qwen2.5-7B-Instruct
-MODEL_PATH="/home/xiaheming/data/pretrained_models/Qwen/Qwen2.5-7B-Instruct" # /home/xiaheming/data/pretrained_models/Qwen/Qwen2.5-7B-Instruct
+MODEL_PATH="/your_model_path/Qwen2.5-7B-Instruct" # /home/xiaheming/data/pretrained_models/Qwen/Qwen2.5-7B-Instruct
 MODEL_SIZE="7b"
 MODEL_TYPE="qwen" # "llama3", "qwen"
 TEST_CONF="configs/${BENCHMARK}_config.json"
@@ -13,7 +13,7 @@ TEMPERATURE=0.0
 SEED=42
 
 # TokenSKip Settings
-ADAPTER_PATH="/home/xiaheming/data/projects/TokenSkip/TokenSkip-Qwen2.5-7B-Instruct-GSM8K"
+ADAPTER_PATH="/your_model_path/TokenSkip-Qwen2.5-7B-Instruct-GSM8K"
 COMPRESSION_RATIO=0.5
 
 CUDA_VISIBLE_DEVICES=0 python ./evaluation.py --output-dir ${OUPTUT_DIR} --model-path ${MODEL_PATH} --tokenizer-path ${MODEL_PATH} \
