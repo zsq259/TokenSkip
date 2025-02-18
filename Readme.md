@@ -17,7 +17,7 @@
 
 We introduce ***TokenSkip***, a simple yet effective approach that enables LLMs to selectively skip redundant tokens during Chain-of-Thought generation and learn shortcuts between critical reasoning tokens, thereby allowing for controllable CoT compression with adjustable ratios.
 
-TokenSkip constructs compressed CoT training data with various compression ratios, by pruning unimportance tokens from original CoT trajectories. Then, it conducts a general supervised fine-tuning process on target LLMs with this training data, enabling LLMs to automatically trim redundant tokens during reasoning.
+TokenSkip constructs compressed CoT training data with various compression ratios, by pruning unimportant tokens from original CoT trajectories. Then, it conducts a general supervised fine-tuning process on target LLMs with this training data, enabling LLMs to automatically trim redundant tokens during reasoning.
 
 ![tokenskip](./assets/tokenskip.png)
 
