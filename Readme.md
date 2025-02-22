@@ -89,11 +89,11 @@ python ./get_llamafactory_input.py
 
 ## Training
 
-TokenSkip follows the general LoRA SFT pipeline of [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory), which is:
+TokenSkip follows the general LoRA SFT pipeline of [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). Here's how to set it up:
 
-1. Fork [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) and install required environments.
-2. Put training data under `LLaMA-Factory/data/` and register it in the `data/dataset_info.json`.
-3. To fine-tune the target LLM with LoRA, please run the following command line:
+1. Fork [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) and install the required environments.
+2. Place the training data under `LLaMA-Factory/data/` and register it in `data/dataset_info.json`.
+3. To fine-tune the target LLM with LoRA, run the following command:
 
 ```
 CUDA_VISIBLE_DEVICES=0 llamafactory-cli train examples/train_lora/myllama3_lora_sft_compressed_gsm8k_llmlingua2_qwen.yaml
