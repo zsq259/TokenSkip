@@ -138,10 +138,10 @@ if __name__ == "__main__":
     parser.add_argument("--adapter-path", type=str, default="/your_model_path/TokenSkip-Qwen2.5-7B-Instruct-GSM8K")
     parser.add_argument("--model-size", type=str, choices=['3b', '7b', '13b', '33b', '34b', '70b'], default="7b")
     parser.add_argument("--model-type", type=str, choices=['llama3', 'qwen'], default="qwen")
-    parser.add_argument("--test-conf", type=str, default="configs/gsm8k_config.json", help="path to testing data config file that maps from a source to its info")
     parser.add_argument("--use_adapter", action='store_true', default=False, help="whether to use LoRA")
     parser.add_argument("--compression_ratio", type=float, default=1.0, help="compression ratio for cot.")
     parser.add_argument("--benchmark", type=str, choices=['gsm8k', 'math'], default="gsm8k")
+    parser.add_argument("--data-type", type=str, choices=['train', 'test'], default="test")
 
     parser.add_argument("--max_num_examples", type=int, default=100000000000000, help="maximum number of examples to evaluate.")
     parser.add_argument("--max_new_tokens", type=int, default=512)
@@ -163,9 +163,9 @@ if __name__ == "__main__":
     if args.use_adapter:
         args.output_dir = os.path.join(args.output_dir, f"{args.model_size}/", f"TokenSkip/", f"{args.compression_ratio}/")
     else:
-        args.output_dir = os.path.join(args.output_dir, f"{args.model_size}/", "Original/")
+        args.output_dir = os.path.join(args.output_dir, f"{args.model_size}/", f"Original/{args.data_type}/")
 
-    test_conf = read_data(args.test_conf)
+    test_conf = read_data(f"configs/{args.benchmark}_{args.data_type}.json")
 
     for src, info in test_conf.items():
         fname = os.path.join(args.output_dir, "test_data", "test.jsonl")

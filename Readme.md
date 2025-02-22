@@ -27,14 +27,22 @@ We observe that as the model scale increases, there is less performance degradat
 
 <img src="./assets/results.png" alt="results"  />
 
+## Update
+
+**2025.2.22**: We have released code for CoT compression and instructions for SFT🔥!
+
+**2025.2.17**: We have released evaluation scripts and checkpoints of TokenSkip, check it out!
+
 ## Todo
 
 - [x] Release checkpoints for Qwen2.5-Instruct series
 - [x] Release evaluation code on GSM8K and MATH-500
-- [ ] Release code for compressed CoT data construction
-- [ ] Add instructions for SFT (LoRA) on LLaMA-Factory
+- [x] Release code for compressed CoT data construction
+- [x] Add instructions for SFT (LoRA) on LLaMA-Factory
 
-## Released Checkpoints
+## Model Weights
+
+Download corresponding model weights and modify the checkpoint path in `eval.sh`.
 
 | LoRA Adapter                         | Link                                                         |
 | ------------------------------------ | ------------------------------------------------------------ |
@@ -51,12 +59,60 @@ cd TokenSkip
 pip install -r requirements.txt
 ```
 
-## Inference
+## Token Pruning
 
-Run command lines in `eval.sh`, the results will be stored in `outputs/`.
+Obtain the original CoT outputs of the training data, using the target LLM.
+
+Modify command lines in `eval.sh` (e.g., set `DATA_TYPE` to `train`) and run `evaluation`.
 
 ```
-./eval.sh
+python ./evaluation.py --output-dir "outputs/Qwen2.5-7B-Instruct/gsm8k/" \
+    --model-path "/your_model_path/Qwen2.5-7B-Instruct" --tokenizer-path ${MODEL_PATH} \
+    --model-size "7b" --model-type "qwen" --data-type "train"  \
+    --max_num_examples 100000000000000 --max_new_tokens 512 \
+    --eval_batch_size 32 --temperature 0.0 --seed 42 --benchmark "gsm8k"
+```
+
+Run `LLMLingua` to obtain compressed CoTs with various ratios.
+
+```
+python ./LLMLingua.py
+```
+
+Run `get_llmfactory_input` to form the training data into the format of [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory).
+
+```
+python ./get_llamafactory_input.py
+```
+
+> We provide our processed training data in `datasets/gsm8k/llamafactory_inputs/`.
+
+## Training
+
+TokenSkip follows the general LoRA SFT pipeline of [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory), which is:
+
+1. Fork [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) and install required environments.
+2. Put training data under `LLaMA-Factory/data/` and register it in the `data/dataset_info.json`.
+3. To fine-tune the target LLM with LoRA, please run the following command line:
+
+```
+CUDA_VISIBLE_DEVICES=0 llamafactory-cli train examples/train_lora/myllama3_lora_sft_compressed_gsm8k_llmlingua2_qwen.yaml
+```
+
+> We provide our training configs in `configs/examples/train_lora` for your reference.
+
+## Inference
+
+Modify and run command lines in `eval.sh`, the results will be stored in `outputs/`.
+
+```
+python ./evaluation.py --output-dir "outputs/Qwen2.5-7B-Instruct/gsm8k/" \
+    --model-path "/your_model_path/Qwen2.5-7B-Instruct" --tokenizer-path ${MODEL_PATH} \
+    --model-size "7b" --model-type "qwen" --data-type "test"  \
+    --max_num_examples 100000000000000 --max_new_tokens 512 \
+    --eval_batch_size 32 --temperature 0.0 --seed 42 --benchmark "gsm8k" \
+    --adapter-path "/your_model_path/TokenSkip-Qwen2.5-7B-Instruct-GSM8K" \
+    --compression_ratio 0.5 --use_adapter
 ```
 
 ## Contributing
@@ -66,3 +122,20 @@ We warmly welcome contributions and discussions related to TokenSkip! If you hav
 ## Acknowledgments
 
 This codebase is built from [DeepSeek-Math](https://github.com/deepseek-ai/DeepSeek-Math) and [LLMLingua](https://github.com/microsoft/LLMLingua).
+
+## Citation
+
+If you find the resources in this repository useful, please cite our paper:
+
+```
+@misc{xia2025tokenskip,
+      title={TokenSkip: Controllable Chain-of-Thought Compression in LLMs}, 
+      author={Heming Xia and Yongqi Li and Chak Tou Leong and Wenjie Wang and Wenjie Li},
+      year={2025},
+      eprint={2502.12067},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2502.12067}, 
+}
+```
+
