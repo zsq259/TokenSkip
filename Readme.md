@@ -29,9 +29,9 @@ We observe that as the model scale increases, there is less performance degradat
 
 ## Update
 
-**2025.2.22**: We have released code for CoT compression and instructions for SFT🔥!
+**2025.2.22**: We have released the code for CoT compression and the instructions for SFT🔥!
 
-**2025.2.17**: We have released evaluation scripts and checkpoints of TokenSkip, check it out!
+**2025.2.17**: We have released the evaluation scripts and checkpoints for TokenSkip. Check it out!
 
 ## Todo
 
@@ -63,7 +63,7 @@ pip install -r requirements.txt
 
 Obtain the original CoT outputs of the training data, using the target LLM.
 
-Modify command lines in `eval.sh` (e.g., set `DATA_TYPE` to `train`) and run `evaluation`.
+Modify the command lines in `eval.sh` (e.g., set `DATA_TYPE` to `train`) and run `evaluation`.
 
 ```
 python ./evaluation.py --output-dir "outputs/Qwen2.5-7B-Instruct/gsm8k/" \
@@ -73,13 +73,13 @@ python ./evaluation.py --output-dir "outputs/Qwen2.5-7B-Instruct/gsm8k/" \
     --eval_batch_size 32 --temperature 0.0 --seed 42 --benchmark "gsm8k"
 ```
 
-Run `LLMLingua` to obtain compressed CoTs with various ratios.
+Run `LLMLingua` to obtain compressed CoTs with various compression ratios.
 
 ```
 python ./LLMLingua.py
 ```
 
-Run `get_llmfactory_input` to form the training data into the format of [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory).
+Run `get_llamafactory_input` to form the training data into the format of [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory).
 
 ```
 python ./get_llamafactory_input.py
