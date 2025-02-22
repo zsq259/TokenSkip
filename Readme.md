@@ -73,6 +73,8 @@ python ./evaluation.py --output-dir "outputs/Qwen2.5-7B-Instruct/gsm8k/" \
     --eval_batch_size 32 --temperature 0.0 --seed 42 --benchmark "gsm8k"
 ```
 
+Download the [model weights](https://huggingface.co/microsoft/llmlingua-2-xlm-roberta-large-meetingbank) for [LLMLingua-2](https://github.com/microsoft/LLMLingua) and modify the checkpoint path in `LLMLingua.py`.
+
 Run `LLMLingua` to obtain compressed CoTs with various compression ratios.
 
 ```
