@@ -61,7 +61,7 @@ pip install -r requirements.txt
 
 ## Token Pruning
 
-Obtain the original CoT outputs of the training data, using the target LLM.
+**1.Obtain the original CoT outputs of the training data, using the target LLM**
 
 Modify the command lines in `eval.sh` (e.g., set `DATA_TYPE` to `train`) and run `evaluation`.
 
@@ -73,6 +73,10 @@ python ./evaluation.py --output-dir "outputs/Qwen2.5-7B-Instruct/gsm8k/" \
     --eval_batch_size 32 --temperature 0.0 --seed 42 --benchmark "gsm8k"
 ```
 
+> The original CoT outputs of the target LLM will be stored in `outputs/.../Original`.
+
+**2.Prune original CoTs using LLMLingua**
+
 Download the [model weights](https://huggingface.co/microsoft/llmlingua-2-xlm-roberta-large-meetingbank) for [LLMLingua-2](https://github.com/microsoft/LLMLingua) and modify the checkpoint path in `LLMLingua.py`.
 
 Run `LLMLingua` to obtain compressed CoTs with various compression ratios.
@@ -81,19 +85,25 @@ Run `LLMLingua` to obtain compressed CoTs with various compression ratios.
 python ./LLMLingua.py
 ```
 
-Run `get_llamafactory_input` to form the training data into the format of [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory).
+> The compressed CoTs will be stored in `outputs/.../Compression`.
+
+**3.Convert training data to LLaMA-Factory format**
+
+Run `get_llamafactory_input` to convert the training data into the format of [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory).
 
 ```
 python ./get_llamafactory_input.py
 ```
 
-> We provide our processed training data in `datasets/gsm8k/llamafactory_inputs/`.
+> The converted data will be stored in `outputs/mydataset.json`.
+>
+> For reference, we provide our processed training data in `datasets/gsm8k/llamafactory_inputs/`.
 
 ## Training
 
 TokenSkip follows the general LoRA SFT pipeline of [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). Here's how to set it up:
 
-1. Fork [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) and install the required environments.
+1. Git clone [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) and install the required environments.
 2. Place the training data under `LLaMA-Factory/data/` and register it in `data/dataset_info.json`.
 3. To fine-tune the target LLM with LoRA, run the following command:
 
