@@ -39,6 +39,7 @@ We observe that as the model scale increases, there is less performance degradat
 - [x] Release evaluation code on GSM8K and MATH-500
 - [x] Release code for compressed CoT data construction
 - [x] Add instructions for SFT (LoRA) on LLaMA-Factory
+- [ ] Investigations on TokenSkip with larger model scales
 
 ## Model Weights
 
