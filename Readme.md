@@ -128,6 +128,10 @@ python ./evaluation.py --output-dir "outputs/Qwen2.5-7B-Instruct/gsm8k/" \
     --compression_ratio 0.5 --use_adapter
 ```
 
+## Q&A
+
+Frequently asked questions about the re-implementation of TokenSkip can be found in [Q&A](./assets/Q&A.md).
+
 ## Contributing
 
 We warmly welcome contributions and discussions related to TokenSkip! If you have any suggestions for improvements or ideas you'd like to discuss, please don't hesitate to open an issue. This will allow us to collaborate and discuss your ideas in detail.
