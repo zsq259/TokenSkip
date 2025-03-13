@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Arxiv-2502.12067-orange.svg"></a> 
 <a href="https://opensource.org/licenses/Apache-2.0">
   <img src="https://img.shields.io/badge/License-Apache_2.0-green.svg"></a> 
-<a href="https://github.com/hemingkx/SWIFT/pulls">
+<a href="https://github.com/hemingkx/TokenSkip/pulls">
     <img src="https://img.shields.io/badge/Contributions-welcome-blue.svg?style=flat"></a>
 </p>
 
