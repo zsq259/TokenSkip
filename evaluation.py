@@ -52,9 +52,15 @@ def infer(args, test_data, answer_extraction_fn):
                         prompt += f"{tokenizer.bos_token}" + "<|start_header_id|>user<|end_header_id|>\n\nPlease reason step by step, and put your final answer within \\boxed{}.\n" + f"{mess['content']}\n{tokenizer.eos_token}<|start_header_id|>assistant<|end_header_id|>\n\n"
                 elif args.model_type == 'qwen':
                     if args.compression_ratio < 1.0:
-                        prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer within \\boxed{}.\n" + f"{mess['content']}<|eot_id|>{args.compression_ratio}<|eot_id|><|im_end|>\n<|im_start|>assistant\n"
+                        if args.benchmark == 'mmlu-pro':
+                            prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer as a letter option (e.g., A, B, C) within \\boxed{}.\n" + f"{mess['content']}<|eot_id|>{args.compression_ratio}<|eot_id|><|im_end|>\n<|im_start|>assistant\n"
+                        else:
+                            prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer within \\boxed{}.\n" + f"{mess['content']}<|eot_id|>{args.compression_ratio}<|eot_id|><|im_end|>\n<|im_start|>assistant\n"
                     else:
-                        prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer within \\boxed{}.\n" + f"{mess['content']}<|im_end|>\n<|im_start|>assistant\n"
+                        if args.benchmark == 'mmlu-pro':
+                            prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer as a letter option (e.g., A, B, C) within \\boxed{}.\n" + f"{mess['content']}<|im_end|>\n<|im_start|>assistant\n"
+                        else:
+                            prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer within \\boxed{}.\n" + f"{mess['content']}<|im_end|>\n<|im_start|>assistant\n"
                 else:
                     raise NotImplementedError()
             elif mess['role'] == 'assistant':
@@ -127,6 +133,11 @@ def infer(args, test_data, answer_extraction_fn):
             'cot_length': cot_length,
         })
         results.append(item)
+        
+    # print an output example
+    print("Example output:", flush=True)
+    print(json.dumps(results[0], indent=4, ensure_ascii=False), flush=True)
+    print("Example output end", flush=True)
     return results, total_time
 
 
@@ -140,7 +151,7 @@ if __name__ == "__main__":
     parser.add_argument("--model-type", type=str, choices=['llama3', 'qwen'], default="qwen")
     parser.add_argument("--use_adapter", action='store_true', default=False, help="whether to use LoRA")
     parser.add_argument("--compression_ratio", type=float, default=1.0, help="compression ratio for cot.")
-    parser.add_argument("--benchmark", type=str, choices=['gsm8k', 'math'], default="gsm8k")
+    parser.add_argument("--benchmark", type=str, choices=['gsm8k', 'math', 'mmlu-pro'], default="gsm8k")
     parser.add_argument("--data-type", type=str, choices=['train', 'test'], default="test")
 
     parser.add_argument("--max_num_examples", type=int, default=100000000000000, help="maximum number of examples to evaluate.")
@@ -166,6 +177,7 @@ if __name__ == "__main__":
         args.output_dir = os.path.join(args.output_dir, f"{args.model_size}/", f"Original/{args.data_type}/")
 
     test_conf = read_data(f"configs/{args.benchmark}_{args.data_type}.json")
+    print(test_conf)
 
     for src, info in test_conf.items():
         fname = os.path.join(args.output_dir, "test_data", "test.jsonl")

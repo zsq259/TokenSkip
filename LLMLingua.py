@@ -45,7 +45,7 @@ def filter_formatted_outputs(input_path="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/Or
     data = load_jsonl(input_path)
     formatted_data = []
     for i in range(len(data)):
-        if data[i]['cot_length'] > 500:
+        if data[i]['cot_length'] > 5000:
             continue
         if model_type == "llama3":
             spans = data[i]["output"].split('\n\nThe final answer is:')
@@ -123,8 +123,8 @@ def get_average_compress_rate(data):
     print(f"Average Compression Rate: {compress_rate}")
 
 
-def data_processing_gsm8k(input_dir="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/", model_type="qwen",
-                          llmlingua_path="/your_model_path/llmlingua-2-xlm-roberta-large-meetingbank"):
+def data_processing_gsm8k(input_dir="outputs/Qwen2.5-7B-Instruct/mmlu-pro/7b/", model_type="qwen",
+                          llmlingua_path="/data/share/data/llama-factory/model/llmlingua-2-xlm-roberta-large-meetingbank"):
     """
     The overall pipeline to process the GSM8K data.
     """

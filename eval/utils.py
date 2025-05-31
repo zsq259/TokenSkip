@@ -86,6 +86,9 @@ def generate_completions(model, tokenizer, prompts, batch_size=1, stop_id_sequen
             batch_generations = [
                 output[len(prompt):] for prompt, output in zip(batch_prompts, batch_outputs)
             ]
+            # print a output example
+            print("Prompt: ", batch_prompts[0])
+            print("Output: ", batch_generations[0])
         except Exception as e:
             print("Error when generating completions for batch:")
             print(batch_prompts)

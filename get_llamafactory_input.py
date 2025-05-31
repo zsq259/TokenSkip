@@ -20,7 +20,7 @@ def seed_everything(seed: int):
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
 
-def load_all_data(input_dir="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/"):
+def load_all_data(input_dir="outputs/Qwen2.5-7B-Instruct/mmlu-pro/7b"):
     original_data = load_json(os.path.join(input_dir, "Original/train/samples/predictions_formatted.jsonl"))
     compressed_data_0 = load_json(os.path.join(input_dir, "Compression/train_outputs_compressed_ratio_0.9.jsonl"))
     compressed_data_1 = load_json(os.path.join(input_dir, "Compression/train_outputs_compressed_ratio_0.8.jsonl"))
@@ -57,7 +57,7 @@ def get_llamafactory_input():
         datalines.append(data)
     print(len(datalines))
     random.shuffle(datalines)
-    write_list_to_json(datalines, './outputs/mydataset_compressed_gsm8k_llmlingua2_qwen_7B.json')
+    write_list_to_json(datalines, './outputs/mydataset_compressed_mmlu-pro_llmlingua2_qwen_7B.json')
 
 
 if __name__ == '__main__':
