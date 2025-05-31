@@ -1,5 +1,5 @@
 print('Loading dependencies...')
-from transformers import GPT2Tokenizer, GPT2LMHeadModel, BertTokenizer, AutoModelForCausalLM, AutoTokenizer, GPT2TokenizerFast
+from transformers import GPT2Tokenizer, GPT2LMHeadModel, BertTokenizer, AutoModelForCausalLM, AutoTokenizer
 import torch
 import re
 from typing import List, Tuple
@@ -67,7 +67,7 @@ class SelectiveContext:
             self.nlp = spacy.load('zh_core_web_sm', disable=["ner"])
 
     def _prepare_model(self):
-        self.tokenizer = GPT2Tokenizer.from_pretrained('/data/share/data/llama-factory/model/gpt2-xl')
+        self.tokenizer = GPT2Tokenizer.from_pretrained('/data/maxb/gpt2-xl')
             
         if self.model_type == 'gpt2':
         
@@ -280,13 +280,71 @@ class SelectiveContext:
         elif level == 'token':
             return ''
     
+    def enhanced_self_info_mask(self, sents: List[str], self_info: List[float], mask_level, 
+                           force_tokens: List[str] = None, force_reserve_digit: bool = True, 
+                           drop_consecutive: bool = True):
+        # 扩展的mask方法，支持额外参数
+        sents_after_mask = []
+        masked_sents = []
+                
+        self.ppl_threshold = np.nanpercentile(self_info, self.mask_ratio * 100)
+        
+        # 预处理要保留的段落标记
+        should_keep = [False] * len(sents)
+        
+        # 检查是否应该强制保留包含特定token的内容
+        if force_tokens:
+            for i, sent in enumerate(sents):
+                for token in force_tokens:
+                    if token in sent:
+                        should_keep[i] = True
+                        break
+        
+        # 检查是否应该保留包含数字的内容
+        if force_reserve_digit:
+            for i, sent in enumerate(sents):
+                if re.search(r'\d', sent):
+                    should_keep[i] = True
+        
+        for i, (sent, info) in enumerate(zip(sents, self_info)):
+            if info < self.ppl_threshold and not should_keep[i]:
+                masked_sents.append(sent)
+                sents_after_mask.append(self.mask_a_sent(sent, mask_level))
+            else:
+                sents_after_mask.append(sent)
+
+        # drop_consecutive (bool, optinal): Whether to drop tokens which are in 'force_tokens' but appears consecutively in compressed prompt.
+        if drop_consecutive and force_tokens:
+            processed_sents = []            
+            for i, current_sent in enumerate(sents_after_mask):
+                should_retain = True
+
+                if i > 0 and current_sent in sents and should_keep[i]:
+                    for token in force_tokens:
+                        if token in current_sent and token in sents_after_mask[i-1]:
+                            should_retain = False
+                            break
+                
+                if should_retain:
+                    processed_sents.append(current_sent)
+                else:
+                    processed_sents.append(self.mask_a_sent(current_sent, mask_level))
+                    masked_sents.append(current_sent)
+            
+            sents_after_mask = processed_sents
+
+        masked_context = " ".join(sents_after_mask) if mask_level == 'sent' else "".join(sents_after_mask)
+        return masked_context, masked_sents
+
+
+
     def __call__(self, text: str, reduce_ratio: float = 0.5, reduce_level :str = 'phrase') -> List[str]:
         context = self.beautify_context(text)
 
         self.mask_ratio = reduce_ratio
 
         sents = [sent.strip() for sent in re.split(self.sent_tokenize_pattern, context) if sent.strip()]
-        print(len(sents))
+        # print(len(sents))
         for i in range(len(sents)):
             st = self.tokenizer(sents[i])
             if len(st['input_ids']) >= 1024:
@@ -312,6 +370,46 @@ class SelectiveContext:
         # context is the reduced context, masked_sents denotes what context has been filtered out
         context, masked_sents = self.self_info_mask(lexical_level[reduce_level].text, lexical_level[reduce_level].self_info, reduce_level)
         return context, masked_sents
+
+    def compress_prompt(self, text: str, compression_ratio: float = 0.5, force_tokens: List[str] = None, 
+                        force_reserve_digit: bool = True, drop_consecutive: bool = True, reduce_level: str = 'phrase') -> str:
+        context = self.beautify_context(text)
+        self.mask_ratio = 1 - compression_ratio
+        sents = [sent.strip() for sent in re.split(self.sent_tokenize_pattern, context) if sent.strip()]
+        # print(len(sents))
+        for i in range(len(sents)):
+            st = self.tokenizer(sents[i])
+            if len(st['input_ids']) >= 1024:
+                print(len(st['input_ids']), sents[i])
+                chops = []
+                for j in range(0, len(st['input_ids']), 1000):
+                    if j+1000 < len(st['input_ids']):
+                        chops.append(self.tokenizer.decode(st['input_ids'][j : j+1000]))
+                    else:
+                        chops.append(self.tokenizer.decode(st['input_ids'][j : ]))
+                print(len(chops), chops)
+                sents = sents[:i] + chops + sents[i+1:]
+        
+        # print(sents)
+        # You want the reduce happen at sentence level, phrase level, or token level?
+        assert reduce_level in ['sent', 'phrase', 'token'], f"reduce_level should be one of ['sent', 'phrase', 'token'], got {reduce_level}"
+        sent_lus, phrase_lus, token_lus = self._lexical_unit(sents)
+        lexical_level = {
+            'sent': sent_lus,
+            'phrase': phrase_lus,
+            'token': token_lus
+        }
+        # context is the reduced context, masked_sents denotes what context has been filtered out
+        context, masked_sents = self.enhanced_self_info_mask(
+            lexical_level[reduce_level].text, 
+            lexical_level[reduce_level].self_info, 
+            reduce_level,
+            force_tokens=force_tokens,
+            force_reserve_digit=force_reserve_digit,
+            drop_consecutive=drop_consecutive
+        )
+        return context, masked_sents
+        
 
 def main(
     model_type = 'gpt2', # you can choose from ['gpt2', 'curie']

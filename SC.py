@@ -23,8 +23,7 @@ def save_jsonl(data, output_path):
             line = json.dumps(item, ensure_ascii=False)
             f.write(line + '\n')
 
-def filter_correct_outputs(input_path="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/Original/samples/predictions.jsonl",
-                           output_path="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/Original/samples/predictions_correct.jsonl"):
+def filter_correct_outputs(input_path, output_path):
     """
     Filter the correct outputs from the data.
     """
@@ -37,15 +36,14 @@ def filter_correct_outputs(input_path="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/Orig
     save_jsonl(correct_data, output_path)
 
 
-def filter_formatted_outputs(input_path="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/Original/samples/predictions_correct.jsonl",
-                             output_path="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/Original/samples/predictions_formatted.jsonl", model_type="qwen"):
+def filter_formatted_outputs(input_path, output_path, model_type):
     """
     Filter the formatted outputs from the data. Extract COT from th outputs.
     """
     data = load_jsonl(input_path)
     formatted_data = []
     for i in range(len(data)):
-        if data[i]['cot_length'] > 500:
+        if data[i]['cot_length'] > 5000:
             continue
         if model_type == "llama3":
             spans = data[i]["output"].split('\n\nThe final answer is:')
@@ -59,9 +57,7 @@ def filter_formatted_outputs(input_path="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/Or
     print(f"Original Samples: {len(data)}, Formatted Samples: {len(formatted_data)}")
     save_jsonl(formatted_data, output_path)
 
-def SelectiveContextCompress(data, compression_ratio=0.5, model_type="qwen",
-                            self_info_model="/data/share/data/llama-factory/model/checkpoint-1400",
-                            lang="en", reduce_level="sent"):
+def SelectiveContextCompress(data, compression_ratio, model_type, self_info_model, lang, reduce_level):
     """
     Compress the CoT outputs with SelectiveContext.
     """
@@ -81,10 +77,14 @@ def SelectiveContextCompress(data, compression_ratio=0.5, model_type="qwen",
     compressed_data = []
     for i in tqdm(range(len(data))):
         cot_output = data[i][cot_type]
-        compressed_text, masked_sents = sc(
+        compressed_text, masked_sents = sc.compress_prompt(
             text=cot_output, 
-            reduce_ratio=compression_ratio,
-            reduce_level=reduce_level
+            compression_ratio=compression_ratio,
+            reduce_level=reduce_level,
+            force_tokens=['Step', ':', '+', '-', '*', '/', '='],
+            # force_tokens=['Step', ':'],
+            force_reserve_digit=True,
+            drop_consecutive=True
         )
         
         # 计算原始和压缩后的token数量
@@ -111,18 +111,14 @@ def SelectiveContextCompress(data, compression_ratio=0.5, model_type="qwen",
     return compressed_data
 
 
-def compress_cot_outputs(input_path="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/Original/samples/predictions_formatted.jsonl",
-                         output_dir="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/SC_Compression", 
-                         model_type="qwen",
-                         self_info_model="/data/share/data/llama-factory/model/checkpoint-1400",
-                         lang="en"):
+def compress_cot_outputs(input_path, output_dir, model_type, self_info_model, lang):
     """
     Compress the CoT outputs with various compression ratios using SelectiveContext.
     """
     data = load_jsonl(input_path)
     ratio_list = [0.9, 0.8, 0.7, 0.6, 0.5]
-    reduce_levels = ["sent", "phrase", "token"]  # SelectiveContext支持不同级别的压缩
-    
+    # reduce_levels = ["sent", "phrase", "token"]  # SelectiveContext支持不同级别的压缩
+    reduce_levels = ["token"]
     for reduce_level in reduce_levels:
         level_dir = os.path.join(output_dir, reduce_level)
         for compression_ratio in ratio_list:
@@ -146,17 +142,14 @@ def get_average_compress_rate(data):
     print(f"Average Compression Rate: {compress_rate}")
 
 
-def data_processing_gsm8k(input_dir="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/",
-                          model_type="qwen",
-                          self_info_model="/data/share/data/llama-factory/model/checkpoint-1400",
-                          lang="en"):
+def data_processing_gsm8k(input_dir, model_type, self_info_model, lang):
     """
     The overall pipeline to process the GSM8K data using SelectiveContext.
     """
     input_path = os.path.join(input_dir, "Original/train/samples/predictions.jsonl")
     correct_path = os.path.join(input_dir, "Original/train/samples/predictions_correct.jsonl")
     formatted_path = os.path.join(input_dir, "Original/train/samples/predictions_formatted.jsonl")
-    compressed_dir = os.path.join(input_dir, "SC_Compression")  # 更改目录名反映使用SelectiveContext
+    compressed_dir = os.path.join(input_dir, "none_my_SC_Compression")
 
     filter_correct_outputs(input_path=input_path, output_path=correct_path)
     filter_formatted_outputs(input_path=correct_path, output_path=formatted_path, model_type=model_type)
@@ -170,9 +163,12 @@ def data_processing_gsm8k(input_dir="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/",
 
 
 if __name__ == '__main__':
-    # 可根据需要修改参数
     data_processing_gsm8k(
+        input_dir="outputs/Qwen2.5-7B-Instruct/gsm8k/7b/",
         model_type="qwen",
-        self_info_model="/data/share/data/llama-factory/model/checkpoint-1400",
-        lang="en"  # 对于中文数据集设为"zh"
+        self_info_model="/data2/PujiProj/data_cache/LF/ckpts/impossible_babylm_none_train_100M_seed0_default/checkpoint-1400",
+        lang="en"
     )
+    
+# /data2/PujiProj/data_cache/LF/ckpts/impossible_babylm_none_train_100M_seed0_default/checkpoint-1400
+# /data2/PujiProj/data_cache/LF/ckpts/impossible_babylm_shuffle_local10_train_100M_seed0_default/checkpoint-1400
