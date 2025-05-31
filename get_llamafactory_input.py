@@ -20,17 +20,20 @@ def seed_everything(seed: int):
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
 
-def load_all_data(input_dir="outputs/Qwen2.5-7B-Instruct/mmlu-pro/7b"):
+def load_all_data(input_dir, method):
     original_data = load_json(os.path.join(input_dir, "Original/train/samples/predictions_formatted.jsonl"))
-    compressed_data_0 = load_json(os.path.join(input_dir, "Compression/train_outputs_compressed_ratio_0.9.jsonl"))
-    compressed_data_1 = load_json(os.path.join(input_dir, "Compression/train_outputs_compressed_ratio_0.8.jsonl"))
-    compressed_data_2 = load_json(os.path.join(input_dir, "Compression/train_outputs_compressed_ratio_0.7.jsonl"))
-    compressed_data_3 = load_json(os.path.join(input_dir, "Compression/train_outputs_compressed_ratio_0.6.jsonl"))
-    compressed_data_4 = load_json(os.path.join(input_dir, "Compression/train_outputs_compressed_ratio_0.5.jsonl"))
+    compressed_data_0 = load_json(os.path.join(input_dir, f"{method}_SC_Compression/token/train_outputs_compressed_ratio_0.9.jsonl"))
+    compressed_data_1 = load_json(os.path.join(input_dir, f"{method}_SC_Compression/token/train_outputs_compressed_ratio_0.8.jsonl"))
+    compressed_data_2 = load_json(os.path.join(input_dir, f"{method}_SC_Compression/token/train_outputs_compressed_ratio_0.7.jsonl"))
+    compressed_data_3 = load_json(os.path.join(input_dir, f"{method}_SC_Compression/token/train_outputs_compressed_ratio_0.6.jsonl"))
+    compressed_data_4 = load_json(os.path.join(input_dir, f"{method}_SC_Compression/token/train_outputs_compressed_ratio_0.5.jsonl"))
     return [original_data, compressed_data_0, compressed_data_1, compressed_data_2, compressed_data_3, compressed_data_4]
 
 def get_llamafactory_input():
-    compressed_data_list = load_all_data()
+    benchmark = "mmlu-pro"
+    method = "shuffle_my_SC"
+    input_dir = f"outputs/Qwen2.5-7B-Instruct/{benchmark}/7b/"
+    compressed_data_list = load_all_data(input_dir, method)
     original_data = compressed_data_list[0]
     compression_ratio_list = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
     datalines = []
@@ -57,7 +60,7 @@ def get_llamafactory_input():
         datalines.append(data)
     print(len(datalines))
     random.shuffle(datalines)
-    write_list_to_json(datalines, './outputs/mydataset_compressed_mmlu-pro_llmlingua2_qwen_7B.json')
+    write_list_to_json(datalines, f'./outputs/mydataset_compressed_{benchmark}_{method}_qwen_7B.json')
 
 
 if __name__ == '__main__':
