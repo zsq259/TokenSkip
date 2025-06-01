@@ -255,8 +255,9 @@ class SelectiveContext:
         # mask_level: mask sentences, phrases, or tokens
         sents_after_mask = []
         masked_sents = []
+        mask_ratio = 1 - self.mask_ratio
                 
-        self.ppl_threshold = np.nanpercentile(self_info, self.mask_ratio * 100)
+        self.ppl_threshold = np.nanpercentile(self_info, mask_ratio * 100)
 
         for sent, info in zip(sents, self_info):
             if info < self.ppl_threshold:
@@ -287,8 +288,6 @@ class SelectiveContext:
         sents_after_mask = []
         masked_sents = []
                 
-        self.ppl_threshold = np.nanpercentile(self_info, self.mask_ratio * 100)
-        
         # 预处理要保留的段落标记
         should_keep = [False] * len(sents)
         
@@ -305,6 +304,14 @@ class SelectiveContext:
             for i, sent in enumerate(sents):
                 if re.search(r'\d', sent):
                     should_keep[i] = True
+        
+        forced_count = sum(should_keep)
+        total_count = len(sents)
+        target_keep_count = int(total_count * (1 - self.mask_ratio))
+        target_compressible_keep_count = max(0, target_keep_count - forced_count)
+        real_mask_ratio_q = 100 * (total_count - target_compressible_keep_count) / total_count
+        
+        self.ppl_threshold = np.nanpercentile(self_info, real_mask_ratio_q)
         
         for i, (sent, info) in enumerate(zip(sents, self_info)):
             if info < self.ppl_threshold and not should_keep[i]:
