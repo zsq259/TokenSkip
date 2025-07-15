@@ -151,7 +151,7 @@ if __name__ == "__main__":
     parser.add_argument("--model-type", type=str, choices=['llama3', 'qwen'], default="qwen")
     parser.add_argument("--use_adapter", action='store_true', default=False, help="whether to use LoRA")
     parser.add_argument("--compression_ratio", type=float, default=1.0, help="compression ratio for cot.")
-    parser.add_argument("--benchmark", type=str, choices=['gsm8k', 'math', 'mmlu-pro'], default="gsm8k")
+    parser.add_argument("--benchmark", type=str, choices=['gsm8k', 'gsm8k_zh', 'math', 'mmlu-pro'], default="gsm8k")
     parser.add_argument("--data-type", type=str, choices=['train', 'test'], default="test")
 
     parser.add_argument("--max_num_examples", type=int, default=100000000000000, help="maximum number of examples to evaluate.")
