@@ -54,11 +54,15 @@ def infer(args, test_data, answer_extraction_fn):
                     if args.compression_ratio < 1.0:
                         if args.benchmark == 'mmlu-pro':
                             prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer as a letter option (e.g., A, B, C) within \\boxed{}.\n" + f"{mess['content']}<|eot_id|>{args.compression_ratio}<|eot_id|><|im_end|>\n<|im_start|>assistant\n"
+                        elif args.benchmark == 'gsm8k_zh':
+                            prompt += "<|im_start|>system\n你是一个有用的助手。<|im_end|>\n<|im_start|>user\n请逐步推理，并将最终答案以“答案是：”的形式结尾。\n" + f"{mess['content']}<|eot_id|>{args.compression_ratio}<|eot_id|><|im_end|>\n<|im_start|>assistant\n"
                         else:
                             prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer within \\boxed{}.\n" + f"{mess['content']}<|eot_id|>{args.compression_ratio}<|eot_id|><|im_end|>\n<|im_start|>assistant\n"
                     else:
                         if args.benchmark == 'mmlu-pro':
                             prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer as a letter option (e.g., A, B, C) within \\boxed{}.\n" + f"{mess['content']}<|im_end|>\n<|im_start|>assistant\n"
+                        elif args.benchmark == 'gsm8k_zh':
+                            prompt += "<|im_start|>system\n你是一个有用的助手。<|im_end|>\n<|im_start|>user\n请逐步推理，并将最终答案以“答案是：”的形式结尾。\n" + f"{mess['content']}<|im_end|>\n<|im_start|>assistant\n"
                         else:
                             prompt += "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease reason step by step, and put your final answer within \\boxed{}.\n" + f"{mess['content']}<|im_end|>\n<|im_start|>assistant\n"
                 else:
